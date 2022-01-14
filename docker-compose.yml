@@ -70,6 +70,7 @@ services:
       - workspace
     networks:
       - backend
+    privileged: true # 开启一些权限，这里用于vpn命令使用
 #    links:
 #      - docker-in-docker
 
@@ -93,6 +94,8 @@ services:
       - ${NGINX_FASTCGI_PARAM}:/etc/nginx/fastcgi_params
     ports:
       - "${NGINX_HOST_HTTP_PORT}:80"
+      - "81:81"
+      - "82:82"
       - "${NGINX_HOST_HTTPS_PORT}:443"
     depends_on:
       - php-fpm

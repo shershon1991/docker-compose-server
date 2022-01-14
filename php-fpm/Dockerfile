@@ -6,6 +6,7 @@ LABEL maintainer="liuqinghui <liuqinghui1991@163.com>"
 ARG TZ=UTC
 ENV TZ ${TZ}
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apt-get update && apt-get install -y openvpn
 
 # 配置同步
 #COPY  ./laravel.ini /usr/local/etc/php/conf.d
