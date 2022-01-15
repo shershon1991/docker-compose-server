@@ -1,5 +1,5 @@
-docker-compose stop nginx php-fpm workspace   &&
-docker-compose rm -f nginx php-fpm workspace  &&
-docker-compose build  nginx  php-fpm workspace   &&
-docker-compose up -d  nginx mysql redis
+docker-compose stop workspace nginx mysql php-fpm redis  &&
+docker-compose rm -f workspace nginx mysql php-fpm redis  &&
+docker-compose build workspace nginx mysql php-fpm redis &&
+docker-compose up -d nginx mysql redis
 

@@ -94,9 +94,9 @@ services:
       - ${NGINX_FASTCGI_PARAM}:/etc/nginx/fastcgi_params
     ports:
       - "${NGINX_HOST_HTTP_PORT}:80"
+      - "${NGINX_HOST_HTTPS_PORT}:443"
       - "81:81"
       - "82:82"
-      - "${NGINX_HOST_HTTPS_PORT}:443"
     depends_on:
       - php-fpm
     networks:
@@ -116,7 +116,7 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - TZ=${TIME_ZONE}
     volumes:
-      - ${DATA_PATH_HOST}/mysql:/var/lib/mysql
+      - ${DATA_PATH_HOST}/mysql/data:/var/lib/mysql
       - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
     ports:
       - "${MYSQL_PORT}:3306"
@@ -133,11 +133,12 @@ services:
       - ${DATA_PATH_HOST}/mongo_config:/data/configdb
     networks:
       - backend
+
   ################# Redis ################################################
   redis:
     build: ./redis
     volumes:
-      - ${DATA_PATH_HOST}/redis:/data
+      - ${DATA_PATH_HOST}/redis/data:/data
     ports:
       - "${REDIS_PORT}:6379"
     networks:
