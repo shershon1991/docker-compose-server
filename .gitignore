@@ -12,3 +12,4 @@ rocketmq/data/store/*
 !rocketmq/data/store/README.md
 
 mysql/data
+redis/data
