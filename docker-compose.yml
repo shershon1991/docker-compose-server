@@ -156,6 +156,7 @@ services:
       - php-fpm
     networks:
       - backend
+
   ################# RabbitMQ #############################################
   rabbitmq:
     build: ./rabbitmq
@@ -247,6 +248,7 @@ services:
       - "${GRAFANA_PORT}:3000"
     networks:
       - backend
+
   ################# Docker-in-Docker ################################################
   docker-in-docker:
     image: docker:dind
@@ -278,6 +280,7 @@ services:
       - rocketmq-console
     networks:
       - backend
+
   ################# rocket-mq-broker ################################################
   rocketmq-broker:
     build:
@@ -297,6 +300,7 @@ services:
       - JAVA_HOME=/usr/lib/jvm/jre
     networks:
       - backend
+
   ################# rocket-mq-console ################################################
   rocketmq-console:
     image: styletang/rocketmq-console-ng
@@ -307,6 +311,7 @@ services:
       - Dcom.rocketmq.sendMessageWithVIPChannel=false
     networks:
       - backend
+
   ################# pulsar ################################################
   pulsar:
     build:
@@ -340,6 +345,7 @@ services:
       SPRING_CONFIGURATION_FILE: /pulsar-manager/pulsar-manager/application.properties
     networks:
       - backend
+
   ### consul ##################################
   consul:
     build:
@@ -357,6 +363,7 @@ services:
       - "8600:8600"
     networks:
       - backend
+
   ### prometheus ################################################
   prometheus:
     build:
@@ -371,6 +378,7 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
     ports:
       - "${PROMETHEUS_PORT}:9090"
+
   ### Zipkin ##############################################
   zipkin:
     build: ./zipkin
@@ -386,6 +394,7 @@ services:
       - MYSQL_TCP_PORT=${ZIPKIN_MYSQL_TCP_PORT}
       - ZIPKIN_VERSION=${ZIPKIN_VERSION}
       - TZ=${TIME_ZONE}
+
   ### hyperf ##############################################
   hyperf:
     build:
