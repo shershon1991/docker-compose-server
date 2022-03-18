@@ -36,12 +36,12 @@ services:
     tty: true
     environment:
       - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
-#      - DOCKER_HOST=tcp://docker-in-docker:2375
+    #      - DOCKER_HOST=tcp://docker-in-docker:2375
     networks:
       - frontend
       - backend
-#    links:
-#      - docker-in-docker
+  #    links:
+  #      - docker-in-docker
 
   ################# PHP-FPM ##############################################
   php-fpm:
@@ -64,15 +64,15 @@ services:
     environment:
       - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
       - TZ=${TIME_ZONE}
-#      - DOCKER_HOST=tcp://docker-in-docker:2375
-#      - FAKETIME=${PHP_FPM_FAKETIME}
+    #      - DOCKER_HOST=tcp://docker-in-docker:2375
+    #      - FAKETIME=${PHP_FPM_FAKETIME}
     depends_on:
       - workspace
     networks:
       - backend
     privileged: true # 开启一些权限，这里用于vpn命令使用
-#    links:
-#      - docker-in-docker
+  #    links:
+  #      - docker-in-docker
 
   ################# NGINX Server #########################################
   nginx:
@@ -325,7 +325,7 @@ services:
       - ${PULSAR_PORT}:6650
     volumes:
       - ${DATA_PATH_HOST}/pulsar:/pulsar/data
-#      - ${APP_PATH}/pulsar/server/config:/pulsar/conf
+    #      - ${APP_PATH}/pulsar/server/config:/pulsar/conf
     depends_on:
       - pulsar-manage
     networks:
