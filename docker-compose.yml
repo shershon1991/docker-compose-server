@@ -413,3 +413,18 @@ services:
       - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
     networks:
       - backend
+
+  ################# dsp ##############################################
+  dsp:
+    build:
+      context: ./dsp
+    volumes:
+      - ${DSP_PATH}:${DSP_PATH_CONTAINER}
+    ports:
+      - "${DSP_PORT_LIST}:${DSP_PORT_LIST}"
+    tty: true
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - backend
