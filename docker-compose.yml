@@ -172,8 +172,8 @@ services:
     hostname: laradock-rabbitmq
     volumes:
       - ${DATA_PATH_HOST}/rabbitmq:/var/lib/rabbitmq
-    depends_on:
-      - php-fpm
+#    depends_on:
+#      - php-fpm
     networks:
       - backend
 
