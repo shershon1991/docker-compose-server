@@ -1,15 +1,17 @@
 .idea
 .DS_Store
 .env
-logs/*
+logs
 
 nginx/sites
 nginx/extend
 
-rocketmq/data/logs/*
-rocketmq/data/store/*
+rocketmq/data/logs
+rocketmq/data/store
 !rocketmq/data/logs/README.md
 !rocketmq/data/store/README.md
 
 mysql/data
 redis/data
+
+rabbitmq/mnesia
