@@ -146,6 +146,75 @@ services:
     networks:
       - backend
 
+  ################# Redis Cluster ################################################
+  master:
+    build: ./redis
+    container_name: redis-master
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - 6379:6379
+    volumes:
+      - ${DATA_PATH_HOST}/redis-cluster/data/data1:/data
+    networks:
+      - backend
+  slave1:
+    build: ./redis
+    container_name: redis-slave-1
+    restart: always
+    command: redis-server --slaveof redis-master 6379  --appendonly yes
+    ports:
+      - 6380:6379
+    volumes:
+      - ${DATA_PATH_HOST}/redis-cluster/data/data2:/data
+    networks:
+      - backend
+  slave2:
+    build: ./redis
+    container_name: redis-slave-2
+    restart: always
+    command: redis-server --slaveof redis-master 6379  --appendonly yes
+    ports:
+      - 6381:6379
+    volumes:
+      - ${DATA_PATH_HOST}/redis-cluster/data/data3:/data
+    networks:
+      - backend
+
+  ################# Redis Sentinel ################################################
+  sentinel1:
+    build: ./redis
+    container_name: redis-sentinel-1
+    restart: always
+    ports:
+      - 26379:26379
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ${DATA_PATH_HOST}/redis-sentinel/conf/sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    networks:
+      - backend
+  sentinel2:
+    build: ./redis
+    container_name: redis-sentinel-2
+    restart: always
+    ports:
+      - 26380:26379
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ${DATA_PATH_HOST}/redis-sentinel/conf/sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    networks:
+      - backend
+  sentinel3:
+    build: ./redis
+    container_name: redis-sentinel-3
+    ports:
+      - 26381:26379
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ${DATA_PATH_HOST}/redis-sentinel/conf/sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    networks:
+      - backend
+
   ################# Memcached ############################################
   memcached:
     build: ./memcached
