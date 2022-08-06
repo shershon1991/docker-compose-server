@@ -1,1 +1,1 @@
-docker-compose stop workspace nginx mysql php-fpm redis
+docker-compose stop workspace nginx mysql php-fpm redis elasticsearch
