@@ -1,6 +1,4 @@
 .idea
-.DS_Store
-.env
 logs
 
 nginx/sites
@@ -15,3 +13,7 @@ mysql/data
 redis/data
 
 rabbitmq/mnesia
+
+.DS_Store
+.env
+docker-compose.yml
