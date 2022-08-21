@@ -103,5 +103,18 @@ Starting env_mysql_1     ... done
 Starting env_php-fpm_1   ... done
 Starting env_nginx_1     ... done
 
-
+➜  docker-compose-server git:(master) docker-compose ps
+     Name                    Command               State                                          Ports
+-----------------------------------------------------------------------------------------------------------------------------------------------
+env_mysql_1       docker-entrypoint.sh mysqld      Up      0.0.0.0:3306->3306/tcp, 33060/tcp
+env_nginx_1       /docker-entrypoint.sh /bin ...   Up      0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp, 0.0.0.0:8080->8080/tcp,
+                                                           0.0.0.0:8081->8081/tcp, 0.0.0.0:8082->8082/tcp, 0.0.0.0:8083->8083/tcp
+env_php-fpm_1     docker-php-entrypoint php-fpm    Up      9000/tcp
+env_redis_1       docker-entrypoint.sh redis ...   Up      0.0.0.0:6379->6379/tcp
+env_workspace_1   /sbin/my_init                    Up      0.0.0.0:2222->22/tcp, 0.0.0.0:18080->8010/tcp, 0.0.0.0:18081->8011/tcp,
+                                                           0.0.0.0:18082->8012/tcp, 0.0.0.0:18083->8013/tcp, 0.0.0.0:18084->8014/tcp,
+                                                           0.0.0.0:18085->8015/tcp, 0.0.0.0:18086->8016/tcp, 0.0.0.0:18087->8017/tcp,
+                                                           0.0.0.0:18088->8018/tcp, 0.0.0.0:18089->8019/tcp, 0.0.0.0:18090->8020/tcp, 9501/tcp,
+                                                           9502/tcp, 9503/tcp, 9504/tcp, 9505/tcp, 9506/tcp, 9507/tcp, 9508/tcp, 9509/tcp,
+                                                           9510/tcp
 ```
