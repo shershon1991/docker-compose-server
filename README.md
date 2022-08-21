@@ -62,7 +62,7 @@ chmod +x /usr/local/bin/docker-compose
 
 ## 5.启动服务
 
-### 5.1 以启动mongo为示例
+### 5.1 启动mongo
 
 ```bash
 ➜  docker-compose-server git:(master)  docker-compose build mongo
@@ -92,3 +92,16 @@ env_mongo_1   docker-entrypoint.sh mongod   Up      0.0.0.0:27017->27017/tcp
 ```
 
 ### 5.2 启动PHP环境(linux/nginx/mysql/php-fpm/redis)
+
+```bash
+➜  docker-compose-server git:(master) chmod +x ./bin/start-phpenv.sh
+
+➜  docker-compose-server git:(master) ./bin/start-phpenv.sh
+Starting env_redis_1     ... done
+Starting env_workspace_1 ... done
+Starting env_mysql_1     ... done
+Starting env_php-fpm_1   ... done
+Starting env_nginx_1     ... done
+
+
+```
