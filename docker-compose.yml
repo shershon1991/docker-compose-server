@@ -95,7 +95,7 @@ services:
     ports:
       - "${NGINX_HOST_HTTP_PORT}:80"
       - "${NGINX_HOST_HTTPS_PORT}:443"
-      - "8080:8080" # php-study-example
+      - "8080:8080" # php-topic
       - "8081:8081" # wm-live-api
       - "8082:8082" # wm-live-middle
       - "8083:8083" # wm-cq-live-api
