@@ -267,8 +267,8 @@ services:
     ports:
       - "${ELASTICSEARCH_HOST_HTTP_PORT}:9200"
       - "${ELASTICSEARCH_HOST_TRANSPORT_PORT}:9300"
-    depends_on:
-      - php-fpm
+#    depends_on:
+#      - php-fpm
     networks:
       - frontend
       - backend
