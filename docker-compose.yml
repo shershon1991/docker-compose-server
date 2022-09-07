@@ -131,9 +131,9 @@ services:
     build: ./mongo
     ports:
       - "${MONGODB_PORT}:27017"
-    volumes:
-      - ${DATA_PATH_HOST}/mongo/db:/data/db
-      - ${DATA_PATH_HOST}/mongo/configdb:/data/configdb
+#    volumes:
+#      - ${DATA_PATH_HOST}/mongo/db:/data/db
+#      - ${DATA_PATH_HOST}/mongo/configdb:/data/configdb
     networks:
       - backend
 
