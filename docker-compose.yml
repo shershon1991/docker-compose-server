@@ -127,12 +127,13 @@ services:
 
   ################# MongoDB ##############################################
   mongo:
+    container_name: mongo
     build: ./mongo
     ports:
       - "${MONGODB_PORT}:27017"
     volumes:
-      - ${DATA_PATH_HOST}/mongo:/data/db
-      - ${DATA_PATH_HOST}/mongo_config:/data/configdb
+      - ${DATA_PATH_HOST}/mongo/db:/data/db
+      - ${DATA_PATH_HOST}/mongo/configdb:/data/configdb
     networks:
       - backend
 
