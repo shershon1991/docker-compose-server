@@ -4,8 +4,8 @@
 
 ### Paths #################################################
 # Point to the path of your applications code on your host
-#APP_CODE_PATH_HOST=/Users/liuqh/ProjectItem/PHPItem
-APP_CODE_PATH_HOST=/Users/liuqh/WorkItem
+#APP_CODE_PATH_HOST=/Users/shershon/ProjectItem/PHPItem
+APP_CODE_PATH_HOST=/Users/shershon/WorkItem
 
 # Point to where the `APP_CODE_PATH_HOST` should be in the container
 APP_CODE_PATH_CONTAINER=/var/www
@@ -14,7 +14,7 @@ APP_CODE_PATH_CONTAINER=/var/www
 APP_CODE_CONTAINER_FLAG=:cached
 
 # Choose storage path on your machine. For all storage systems
-DATA_PATH_HOST=/Users/liuqh/DockerService/docker-volumes
+DATA_PATH_HOST=/Users/shershon/docker-compose-server
 
 ### Drivers ################################################
 # All volumes driver
