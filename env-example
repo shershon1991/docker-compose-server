@@ -4,8 +4,10 @@
 
 ### Paths #################################################
 # Point to the path of your applications code on your host
-#APP_CODE_PATH_HOST=/Users/shershon/ProjectItem/PHPItem
-APP_CODE_PATH_HOST=/Users/shershon/WorkItem
+# 工作项目目录(微淼)
+#APP_CODE_PATH_HOST=/Users/shershon/WorkItem/weimiao-php
+# 个人项目目录
+APP_CODE_PATH_HOST=/Users/shershon/ProjectItem/PhpItem
 
 # Point to where the `APP_CODE_PATH_HOST` should be in the container
 APP_CODE_PATH_CONTAINER=/var/www
@@ -53,9 +55,9 @@ TIME_ZONE=PRC
 ### Docker Host IP ########################################
 # Enter your Docker Host IP (will be appended to /etc/hosts). Default is `10.0.75.1`
 # 公司
-DOCKER_HOST_IP=10.0.26.3
+#DOCKER_HOST_IP=10.0.16.171
 # 家
-# DOCKER_HOST_IP=192.168.31.248
+DOCKER_HOST_IP=192.168.18.197
 
 ### Remote Interpreter ####################################
 # Choose a Remote Interpreter entry matching name. Default is `laradock`
@@ -68,6 +70,7 @@ WORKSPACE_PORT_LIST=18080-18090
 
 ### PHP_FPM ###############################################
 PHP_FPM_INSTALL_XHPROF=true
+
 ### hyperf ###############################################
 HYPERF_COMPOSER_VERSION=2.0.12
 HYPERF_ALPINE_VERSION=3.11
@@ -157,3 +160,8 @@ ZIPKIN_MYSQL_HOST=mysql
 ZIPKIN_MYSQL_TCP_PORT=3306
 ZIPKIN_VERSION=latest
 ZIPKIN_PORT=9411
+
+### dsp ###############################################
+DSP_PATH=/Users/shershon/dsp
+DSP_PATH_CONTAINER=/home/work/dsp
+DSP_PORT_LIST=9080-9090
