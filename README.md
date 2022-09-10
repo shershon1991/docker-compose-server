@@ -2,26 +2,7 @@
 
 通过使用docker-compose,将一些日常开发中经常使用的服务进行编排,集装在docker中,以容器的方式运行服务、管理服务、升级或者降级服务.期望达到一次构建处处使用,再也不用再像之前那么复杂的安装、配置、启动......
 
-## 2.配置修改
-
-### 2.1 第一步复制配置文件
-
-```shell
-cp env-example .env
-```
-
-### 2.2 修改 .env
-
-```shell
-# 改成自己电脑的IP
-DOCKER_HOST_IP=改成自己电脑的IP
-# 本地php项目的上级目录
-APP_CODE_PATH_HOST=本地php项目的上级目录
-# 持久卷位置
-DATA_PATH_HOST=持久卷位置
-```
-
-## 3.服务列表
+## 2.服务列表
 
 - workspace
 - php-fpm
@@ -43,15 +24,34 @@ DATA_PATH_HOST=持久卷位置
 - hyperf
 - dsp
 
-# 4.使用介绍
+# 3.使用介绍
 
-## 4.1 获取项目
+## 3.1 获取项目
 
 ```bash
 git clone https://github.com/shershon1991/docker-compose-server.git
 ```
 
-## 4.2 安装docker-compose
+## 3.2 配置修改
+
+### 3.2.1 第一步复制配置文件
+
+```shell
+cp env-example .env
+```
+
+### 3.2.2 修改 .env
+
+```shell
+# 改成自己电脑的IP
+DOCKER_HOST_IP=改成自己电脑的IP
+# 本地php项目的上级目录
+APP_CODE_PATH_HOST=本地php项目的上级目录
+# 持久卷位置
+DATA_PATH_HOST=持久卷位置
+```
+
+## 3.3 安装docker-compose
 
 ```bash
 # 下载
@@ -60,9 +60,9 @@ curl -L https://github.com/docker/compose/releases/download/1.25.0/docker-compos
 chmod +x /usr/local/bin/docker-compose
 ```
 
-## 5.启动服务
+## 4.启动服务
 
-### 5.1 启动mongo
+### 4.1 启动mongo
 
 ```bash
 ➜  docker-compose-server git:(master)  docker-compose build mongo
@@ -91,7 +91,7 @@ Creating env_mongo_1 ... done
 env_mongo_1   docker-entrypoint.sh mongod   Up      0.0.0.0:27017->27017/tcp
 ```
 
-### 5.2 启动PHP环境(linux/nginx/mysql/php-fpm/redis)
+### 4.2 启动PHP环境(linux/nginx/mysql/php-fpm/redis)
 
 ```bash
 ➜  docker-compose-server git:(master) chmod +x ./bin/start-phpenv.sh
