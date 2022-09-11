@@ -101,6 +101,7 @@ services:
       - "8081:8081" # wm-live-api
       - "8082:8082" # wm-live-middle
       - "8083:8083" # wm-cq-live-api
+      - "8084:8084" # yii-api-template-advanced
     depends_on:
       - php-fpm
     networks:
