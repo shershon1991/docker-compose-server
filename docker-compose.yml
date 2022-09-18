@@ -97,7 +97,7 @@ services:
     ports:
       - "${NGINX_HOST_HTTP_PORT}:80"
       - "${NGINX_HOST_HTTPS_PORT}:443"
-      - "8080:8080" # php-topic
+      - "8080:8080" # self-api-template
       - "8081:8081" # wm-live-api
       - "8082:8082" # wm-live-middle
       - "8083:8083" # wm-cq-live-api
@@ -135,9 +135,9 @@ services:
     build: ./mongo
     ports:
       - "${MONGODB_PORT}:27017"
-#    volumes:
-#      - ${DATA_PATH_HOST}/mongo/db:/data/db
-#      - ${DATA_PATH_HOST}/mongo/configdb:/data/configdb
+    #    volumes:
+    #      - ${DATA_PATH_HOST}/mongo/db:/data/db
+    #      - ${DATA_PATH_HOST}/mongo/configdb:/data/configdb
     networks:
       - backend
 
@@ -249,8 +249,8 @@ services:
     hostname: laradock-rabbitmq
     volumes:
       - ${DATA_PATH_HOST}/rabbitmq:/var/lib/rabbitmq
-#    depends_on:
-#      - php-fpm
+    #    depends_on:
+    #      - php-fpm
     networks:
       - backend
 
@@ -276,8 +276,8 @@ services:
     ports:
       - "${ELASTICSEARCH_HOST_HTTP_PORT}:9200"
       - "${ELASTICSEARCH_HOST_TRANSPORT_PORT}:9300"
-#    depends_on:
-#      - php-fpm
+    #    depends_on:
+    #      - php-fpm
     networks:
       - frontend
       - backend
