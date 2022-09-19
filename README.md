@@ -23,6 +23,7 @@
 - zipkin
 - hyperf
 - dsp
+- jenkins
 
 # 3.使用介绍
 
@@ -37,7 +38,8 @@ git clone https://github.com/shershon1991/docker-compose-server.git
 ### 3.2.1 第一步复制配置文件
 
 ```shell
-cp env-example .env
+cp env-template .env
+cp docker-compose-template.yml docker-compose.yml
 ```
 
 ### 3.2.2 修改 .env

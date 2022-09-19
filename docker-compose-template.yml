@@ -1,0 +1,522 @@
+version: '3'
+
+networks:
+  frontend:
+    driver: ${NETWORKS_DRIVER}
+  backend:
+    driver: ${NETWORKS_DRIVER}
+
+volumes:
+  mysql:
+    driver: ${VOLUMES_DRIVER}
+  memcached:
+    driver: ${VOLUMES_DRIVER}
+  redis:
+    driver: ${VOLUMES_DRIVER}
+  mongo:
+    driver: ${VOLUMES_DRIVER}
+  elasticsearch:
+    driver: ${VOLUMES_DRIVER}
+
+services:
+
+  ################# Workspace Utilities ##################################
+  workspace:
+    container_name: workspace
+    build:
+      context: ./workspace
+      args:
+        - PHP_VERSION=${PHP_VERSION}
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+    ports:
+      - "${WORKSPACE_SSH_PORT}:22"
+      - "${WORKSPACE_PORT_LIST}:8010-8020"
+    tty: true
+    environment:
+      - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
+    #      - DOCKER_HOST=tcp://docker-in-docker:2375
+    networks:
+      - frontend
+      - backend
+  #    links:
+  #      - docker-in-docker
+
+  ################# PHP-FPM ##############################################
+  php-fpm:
+    container_name: php-fpm
+    build:
+      context: ./php-fpm
+      args:
+        - PHP_VERSION=${PHP_VERSION}
+    volumes:
+      - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
+      - ./php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./php-fpm/laravel.ini:/usr/local/etc/php/conf.d/laravel.ini
+      - ./php-fpm/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini
+      - ./php-fpm/xlaravel.pool.conf:/usr/local/etc/php-fpm.d/xlaravel.pool.conf
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+    expose:
+      - "9000"
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+    environment:
+      - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
+      - TZ=${TIME_ZONE}
+    #      - DOCKER_HOST=tcp://docker-in-docker:2375
+    #      - FAKETIME=${PHP_FPM_FAKETIME}
+    depends_on:
+      - workspace
+    networks:
+      - backend
+    privileged: true # 开启一些权限，这里用于vpn命令使用
+  #    links:
+  #      - docker-in-docker
+
+  ################# NGINX Server #########################################
+  nginx:
+    container_name: nginx
+    build:
+      context: ./nginx
+      args:
+        - CHANGE_SOURCE=${CHANGE_SOURCE}
+        - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
+        - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+      - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
+      - ${NGINX_SSL_PATH}:/etc/nginx/ssl
+      - ${NGINX_EXTEND_PATH}:/etc/nginx/extend
+      - ${NGINX_FASTCGI_PARAM}:/etc/nginx/fastcgi_params
+    ports:
+      - "${NGINX_HOST_HTTP_PORT}:80"
+      - "${NGINX_HOST_HTTPS_PORT}:443"
+      - "8080:8080" # self-api-template
+      - "8081:8081" # wm-live-api
+      - "8082:8082" # wm-live-middle
+      - "8083:8083" # wm-cq-live-api
+    depends_on:
+      - php-fpm
+    networks:
+      - frontend
+      - backend
+
+  ################# MySQL ################################################
+  mysql:
+    container_name: mysql
+    build:
+      context: ./mysql
+      args:
+        - MYSQL_VERSION=${MYSQL_VERSION}
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${TIME_ZONE}
+    volumes:
+      - ${DATA_PATH_HOST}/mysql/data:/var/lib/mysql
+      - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+    ports:
+      - "${MYSQL_PORT}:3306"
+    networks:
+      - backend
+
+  ################# MongoDB ##############################################
+  mongo:
+    container_name: mongo
+    build: ./mongo
+    ports:
+      - "${MONGODB_PORT}:27017"
+    #    volumes:
+    #      - ${DATA_PATH_HOST}/mongo/db:/data/db
+    #      - ${DATA_PATH_HOST}/mongo/configdb:/data/configdb
+    networks:
+      - backend
+
+  ################# Redis ################################################
+  redis:
+    container_name: redis
+    build: ./redis
+    volumes:
+      - ${DATA_PATH_HOST}/redis/data:/data
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - backend
+
+  ################# Redis Cluster ################################################
+  master:
+    container_name: redis-master
+    build: ./redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - 6379:6379
+    volumes:
+      - ${DATA_PATH_HOST}/redis-cluster/data/data1:/data
+    networks:
+      - backend
+  slave1:
+    container_name: redis-slave-1
+    build: ./redis
+    restart: always
+    command: redis-server --slaveof redis-master 6379  --appendonly yes
+    ports:
+      - 6380:6379
+    volumes:
+      - ${DATA_PATH_HOST}/redis-cluster/data/data2:/data
+    networks:
+      - backend
+  slave2:
+    container_name: redis-slave-2
+    build: ./redis
+    restart: always
+    command: redis-server --slaveof redis-master 6379  --appendonly yes
+    ports:
+      - 6381:6379
+    volumes:
+      - ${DATA_PATH_HOST}/redis-cluster/data/data3:/data
+    networks:
+      - backend
+
+  ################# Redis Sentinel ################################################
+  sentinel1:
+    container_name: redis-sentinel-1
+    build: ./redis
+    restart: always
+    ports:
+      - 26379:26379
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ${DATA_PATH_HOST}/redis-sentinel/conf/sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    networks:
+      - backend
+  sentinel2:
+    container_name: redis-sentinel-2
+    build: ./redis
+    restart: always
+    ports:
+      - 26380:26379
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ${DATA_PATH_HOST}/redis-sentinel/conf/sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    networks:
+      - backend
+  sentinel3:
+    container_name: redis-sentinel-3
+    build: ./redis
+    ports:
+      - 26381:26379
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ${DATA_PATH_HOST}/redis-sentinel/conf/sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    networks:
+      - backend
+
+  ################# Memcached ############################################
+  memcached:
+    container_name: memcached
+    build: ./memcached
+    volumes:
+      - ${DATA_PATH_HOST}/memcached:/var/lib/memcached
+    ports:
+      - "${MEMCACHED_HOST_PORT}:11211"
+    depends_on:
+      - php-fpm
+    networks:
+      - backend
+
+  ################# RabbitMQ #############################################
+  rabbitmq:
+    container_name: rabbitmq
+    build: ./rabbitmq
+    ports:
+      - "${RABBITMQ_NODE_HOST_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_HTTP_HOST_PORT}:15672"
+      - "${RABBITMQ_MANAGEMENT_HTTPS_HOST_PORT}:15671"
+    privileged: true
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    hostname: laradock-rabbitmq
+    volumes:
+      - ${DATA_PATH_HOST}/rabbitmq:/var/lib/rabbitmq
+    #    depends_on:
+    #      - php-fpm
+    networks:
+      - backend
+
+  ################# ElasticSearch ########################################
+  elasticsearch:
+    container_name: elasticsearch
+    build:
+      context: ./elasticsearch
+      args:
+        - ELK_VERSION=${ELK_VERSION}
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+    environment:
+      - cluster.name=laradock-cluster
+      - node.name=laradock-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - cluster.initial_master_nodes=laradock-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "${ELASTICSEARCH_HOST_HTTP_PORT}:9200"
+      - "${ELASTICSEARCH_HOST_TRANSPORT_PORT}:9300"
+    #    depends_on:
+    #      - php-fpm
+    networks:
+      - frontend
+      - backend
+
+  ################# Logstash ###########################################
+  logstash:
+    container_name: logstash
+    build:
+      context: ./logstash
+      args:
+        - ELK_VERSION=${ELK_VERSION}
+    volumes:
+      - './logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml'
+      - './logstash/pipeline:/usr/share/logstash/pipeline'
+    ports:
+      - '5001:5001'
+    environment:
+      LS_JAVA_OPTS: '-Xmx1g -Xms1g'
+    env_file:
+      - .env
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - elasticsearch
+
+  ################# Kibana ##############################################
+  kibana:
+    container_name: kibana
+    build:
+      context: ./kibana
+      args:
+        - ELK_VERSION=${ELK_VERSION}
+    ports:
+      - "${KIBANA_HTTP_PORT}:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - frontend
+      - backend
+
+  ################# Grafana ###############################################
+  grafana:
+    container_name: grafana
+    build:
+      context: ./grafana
+    volumes:
+      - ${DATA_PATH_HOST}/grafana:/var/lib/grafana
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    networks:
+      - backend
+
+  ################# rocket-mq-server ################################################
+  rocketmq:
+    container_name: rocketmq
+    build:
+      context: ./rocketmq
+      args:
+        - ROCKETMQ_VERSION=${ROCKETMQ_VERSION}
+    volumes:
+      - ${ROCKET_LOGS}:/opt/logs
+      - ${ROCKET_STORE}:/opt/store
+    ports:
+      - "${ROCKET_SERVER_PORT}:9876"
+    environment:
+      JAVA_OPT_EXT: "-Duser.home=/opt -Xms512M -Xmx512M -Xmn128m"
+      MAX_POSSIBLE_HEAP: 100000000
+    depends_on:
+      - rocketmq-broker
+      - rocketmq-console
+    networks:
+      - backend
+
+  ################# rocket-mq-broker ################################################
+  rocketmq-broker:
+    container_name: rocketmq-broker
+    build:
+      context: ./rocketmq/broker
+      args:
+        - LOCAL_HOST_IP=${DOCKER_HOST_IP}
+        - ROCKETMQ_VERSION=${ROCKETMQ_VERSION}
+    volumes:
+      - ${ROCKET_LOGS}:/opt/logs
+      - ${ROCKET_STORE}:/opt/store
+    ports:
+      - 10909:10909
+      - 10911:10911
+      - 10912:10912
+    command: sh mqbroker -n rocketmq:9876 -c ../conf/broker.conf
+    environment:
+      - JAVA_HOME=/usr/lib/jvm/jre
+    networks:
+      - backend
+
+  ################# rocket-mq-console ################################################
+  rocketmq-console:
+    container_name: rocket-mq-console
+    image: styletang/rocketmq-console-ng
+    ports:
+      - 8087:8080
+    environment:
+      - JAVA_OPTS= -Dlogging.level.root=info   -Drocketmq.namesrv.addr=rocketmq:9876
+      - Dcom.rocketmq.sendMessageWithVIPChannel=false
+    networks:
+      - backend
+
+  ################# pulsar ################################################
+  pulsar:
+    container_name: pulsar-server
+    build:
+      context: ./pulsar/server
+      args:
+        - PULSAR_VERSION=${PULSAR_VERSION}
+        - DOCKER_HOST_IP=${DOCKER_HOST_IP}
+    ports:
+      - ${PULSAR_HTTP_PORT}:8080
+      - ${PULSAR_PORT}:6650
+    volumes:
+      - ${DATA_PATH_HOST}/pulsar:/pulsar/data
+    #      - ${APP_PATH}/pulsar/server/config:/pulsar/conf
+    depends_on:
+      - pulsar-manage
+    networks:
+      - backend
+
+  ################# pulsar-manage ################################################
+  pulsar-manage:
+    container_name: pulsar-manager
+    build:
+      context: ./pulsar/manager
+      args:
+        - PULSAR_MANAGER_VERSION=${PULSAR_MANAGER_VERSION}
+    volumes:
+      - ${SPRING_CONFIGURATION_FILE}:/pulsar-manager/pulsar-manager/application.properties
+    ports:
+      - "9527:9527"
+      - "7750:7750"
+    environment:
+      SPRING_CONFIGURATION_FILE: /pulsar-manager/pulsar-manager/application.properties
+    networks:
+      - backend
+
+  ### consul ##################################
+  consul:
+    container_name: consul-${CONSUL_VERSION}
+    build:
+      context: ./consul
+      args:
+        - CONSUL_VERSION=${CONSUL_VERSION}
+    volumes:
+      - ${DATA_PATH_HOST}/consul:/consul/data
+    environment:
+      - TZ=${TIME_ZONE}
+    ports:
+      - "8300-8302:8300-8302"
+      - "8500:8500"
+      - "8600:8600"
+    networks:
+      - backend
+
+  ### prometheus ################################################
+  prometheus:
+    container_name: prometheus
+    build:
+      context: ./prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus/
+      - ${DATA_PATH_HOST}/prometheus:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+
+  ### Zipkin ##############################################
+  zipkin:
+    container_name: zipkin
+    build: ./zipkin
+    ports:
+      - "${ZIPKIN_PORT}:9411"
+    environment:
+      - STORAGE_TYPE=${ZIPKIN_STORAGE_TYPE}
+      - MYSQL_DB=${ZIPKIN_MYSQL_DB}
+      - MYSQL_USER=${ZIPKIN_MYSQL_USER}
+      - MYSQL_PASS=${ZIPKIN_MYSQL_PASS}
+      - MYSQL_HOST=${ZIPKIN_MYSQL_HOST}
+      - MYSQL_TCP_PORT=${ZIPKIN_MYSQL_TCP_PORT}
+      - ZIPKIN_VERSION=${ZIPKIN_VERSION}
+      - TZ=${TIME_ZONE}
+
+  ### hyperf ##############################################
+  hyperf:
+    container_name: hyperf
+    build:
+      context: ./hyperf
+      args:
+        - HYPERF_COMPOSER_VERSION=${HYPERF_COMPOSER_VERSION}
+        - HYPERF_ALPINE_VERSION=${HYPERF_ALPINE_VERSION}
+        - HYPERF_PHP_VERSION=${HYPERF_PHP_VERSION}
+    ports:
+      - "${HYPERF_PORT_LIST}:${HYPERF_PORT_LIST}"
+    tty: true
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+    environment:
+      - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
+    networks:
+      - backend
+
+  ################# dsp ##############################################
+  dsp:
+    container_name: dsp
+    build:
+      context: ./dsp
+    volumes:
+      - ${DSP_PATH}:${DSP_PATH_CONTAINER}
+    ports:
+      - "${DSP_PORT_LIST}:${DSP_PORT_LIST}"
+    tty: true
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - backend
+
+  ################# jenkins ##############################################
+  jenkins:
+    container_name: jenkins
+    build:
+      context: ./jenkins
+      args:
+        - JENKINS_VERSION=${JENKINS_VERSION}
+    volumes:
+      - ${JENKINS_SECRETS_PATH}:${JENKINS_SECRETS_PATH_CONTAINER}
+      - ${JENKINS_WAR_PATH}:${JENKINS_WAR_PATH_CONTAINER}
+    ports:
+      - "${JENKINS_PORT_LIST}:${JENKINS_PORT_LIST}"
+    tty: true
+    networks:
+      - backend
