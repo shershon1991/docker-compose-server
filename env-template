@@ -87,7 +87,7 @@ NGINX_PHP_UPSTREAM_PORT=9000
 NGINX_SSL_PATH=./nginx/ssl/
 NGINX_EXTEND_PATH=./nginx/extend/
 NGINX_FASTCGI_PARAM=./nginx/fastcgi_params
-NGINX_PORT_LIST=8080-8090
+NGINX_PORT_LIST=8080-8085
 
 ### MYSQL #################################################
 MYSQL_VERSION=8.0
