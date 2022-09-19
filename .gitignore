@@ -13,6 +13,8 @@ redis/data
 
 rabbitmq/mnesia
 
+jenkins/secrets
+
 .DS_Store
 .env
 docker-compose.yml
