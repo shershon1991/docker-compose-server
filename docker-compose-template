@@ -28,7 +28,7 @@ services:
       args:
         - PHP_VERSION=${PHP_VERSION}
     volumes:
-      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
     extra_hosts:
       - "dockerhost:${DOCKER_HOST_IP}"
     ports:
@@ -57,7 +57,7 @@ services:
       - ./php-fpm/laravel.ini:/usr/local/etc/php/conf.d/laravel.ini
       - ./php-fpm/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini
       - ./php-fpm/xlaravel.pool.conf:/usr/local/etc/php-fpm.d/xlaravel.pool.conf
-      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
     expose:
       - "9000"
     extra_hosts:
@@ -88,7 +88,7 @@ services:
         - https_proxy
         - no_proxy
     volumes:
-      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
       - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
       - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
       - ${NGINX_SSL_PATH}:/etc/nginx/ssl
@@ -480,7 +480,7 @@ services:
       - "${HYPERF_PORT_LIST}:${HYPERF_PORT_LIST}"
     tty: true
     volumes:
-      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}
     environment:
       - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
     networks:
