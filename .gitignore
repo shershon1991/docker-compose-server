@@ -2,7 +2,7 @@
 logs
 
 nginx/extend
-nginx/sites/*.conf
+nginx/sites
 
 rocketmq/data/logs
 rocketmq/data/store
