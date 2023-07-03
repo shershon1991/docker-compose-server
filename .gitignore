@@ -4,6 +4,8 @@ logs
 nginx/extend
 nginx/sites
 
+!rabbitmq/Dockerfile
+
 rocketmq/data/logs
 rocketmq/data/store
 !rocketmq/data/logs/README.md
@@ -11,8 +13,6 @@ rocketmq/data/store
 
 mysql/data
 redis/data
-
-rabbitmq/mnesia
 
 jenkins/secrets
 
