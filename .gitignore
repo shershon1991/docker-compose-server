@@ -4,7 +4,8 @@ logs
 nginx/extend
 nginx/sites
 
-!rabbitmq/Dockerfile
+rabbitmq/mnesia
+rabbitmq/.erlang.cookie
 
 rocketmq/data/logs
 rocketmq/data/store
