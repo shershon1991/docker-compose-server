@@ -1,1 +1,0 @@
-docker-compose stop dsp mysql redis rabbitmq
